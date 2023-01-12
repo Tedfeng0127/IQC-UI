@@ -1,0 +1,27 @@
+* {
+    /* font-family: monospace; */
+    font-family: Microsoft JhengHei;
+}
+
+table, th, td {
+    border: 1px solid black;
+    /* border-radius: 5px; */
+}
+
+td {
+    padding: 3px;
+}
+
+table {
+    /* display: block; */
+    overflow-x: auto;
+    white-space: nowrap;
+    table-layout: auto;
+}
+
+th {
+    padding: 10px;
+    position: sticky;
+    top: 0;
+    background-color: white;
+}

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='info_confirm.css') }}"/>
+    <title>物料資訊檢查</title>
+    
+    <script>
+        function iqc_info_is_incorrect() {
+            history.back(alert("請重新輸入物料資訊\nPlease enter the material information again"))
+        }
+    </script>
+</head>
+
+
+<body>
+    <div class="container">
+        <p>
+            以下物料資訊是否正確？<br>
+            Is the material infomation below correct?
+        </p>
+
+        <form method="post" action="input_iqc_data">
+            <table>
+                <caption>
+                    物料資訊<br>
+                    Material Information
+                </caption>
+
+                <colgroup span="11"></colgroup>
+                <colgroup span="2" style="background-color: #DEDEDE;"></colgroup>
+
+                <thead>
+                    <tr>
+                        <th>檢驗日期 <br> Inspection Date</th>
+                        <th>廠商名稱 <br> Supplier Name</th>
+                        <th>廠商代號 <br> Supplier No.</th>
+                        <th>檢驗批號 <br> Inspection Lot No.</th>
+                        <th>檢驗類別 <br> Inspection Type</th>
+                        <th>工單號 <br> Work Order No.</th>
+                        <th>採購單號 <br> PO No.</th>
+                        <th>料號 <br> Part No.</th>
+                        <th>品名 <br> Item Description</th>
+                        <th>版本 <br> Rev.</th>
+                        <th>批量 <br> Lot Qty.</th>
+                        <th>檢驗規範 <br> Inspection Document</th>
+                        <th>抽樣計畫 <br> AQL</th>
+                    </tr>
+                </thead>
+                
+                <tbody>
+                    
+                    {% for row in rows %}
+                    <tr>
+                        {# 把迴圈的第幾層用index存起來 #}
+                        {% set index = loop.index0 %}
+                        
+                        {% for i in row %}
+                        
+                            {# 如果這筆資料的廠商代號不存在，把表格裡的廠商代號顯示成紅色 #}
+                            {% if condition[index][0] == True and loop.index0 == 2 %}
+                                <td style="color: red;">{{i}}</td>
+                            {# 如果這筆資料的料號不存在，把表格裡的料號顯示成紅色 #}
+                            {% elif condition[index][1] == True and loop.index0 == 7 %}
+                                <td style="color: red;">{{i}}</td>
+                            {% else %}
+                                <td>{{i}}</td>
+                            {% endif %}
+
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+            <br>
+            <input type="submit" value="是 Yes">
+        </form>
+    </div>
+    
+    <br>
+
+    <div>
+        <input type="button" onclick="iqc_info_is_incorrect();" value="否 No"></input>
+    </div>
+</body>
+</html>

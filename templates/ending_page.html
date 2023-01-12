@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>資料輸入完成</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='ending_page.css') }}"/>
+</head>
+
+<body>
+    <div class="container">
+        <form method="post" action="/continue_or_finish">
+            <div class="title">資料輸入完成 <br> The records have been saved successfully</div>
+            <br>
+            <br>
+            <div>
+                <button type="submit" name="continue_or_finish" value="continue">繼續輸入 Continue</button>
+                <!-- <button type="submit" name="continue_or_finish" value="finish">結束 Finish</button> -->
+            </div>
+        </form>
+    </div>
+</body>
+</html>

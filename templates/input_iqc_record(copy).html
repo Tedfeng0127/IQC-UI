@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/static/main.js"></script>
+    <title>物料檢驗紀錄輸入</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='input_iqc_record.css') }}"/>
+</head>
+
+
+<body>
+    <div class="container">
+        <p>
+            請輸入檢驗紀錄<br>
+            Please enter the inspection record
+        </p>
+        <form action="show_ending_page" method="post" name="iqc_record_data">
+            <table>
+                <!-- <caption>物料資訊</caption> -->
+
+                <colgroup span="12"></colgroup>
+                <colgroup span="6" style="background-color: #DEDEDE;"></colgroup>
+
+                <thead>
+                    <tr>
+                        <th>日期 <br> Date</th>
+                        <th>廠商名稱 <br> Supplier Name</th>
+                        <th>廠商代號 <br> Supplier Number</th>
+                        <th>採購單號 <br> Order Type</th>
+                        <th>採購單號 <br> Order Number</th>
+                        <th>採購單號 <br> Line</th>
+                        <th>料號 <br> Item Number</th>
+                        <th>品名 <br> Item Description</th>
+                        <th>批量 <br> Quantity</th>
+                        <th>檢驗規範 <br> Inspection Document</th>
+                        <th>抽樣計畫 <br> AQL</th>
+                        <th>工程版本 <br> Item Rev</th>
+                        <th>抽樣狀態 <br> Sampling State</th>
+                        <th>檢驗量 <br> Sampling Quantity</th>
+                        <th>主要缺失 收 <br> Major Accept</th>
+                        <th>主要缺失 退 <br> Major Reject</th>
+                        <th>次要缺失 收 <br> Minor Accept</th>
+                        <th>次要缺失 退 <br> Minor Reject</th>
+                        <th>目視檢驗結果 <br> Cosmetic Inspection Result</th>
+                        <th>目視檢驗缺失原因 <br> Cosmetic Inspection Defect Reason</th>
+                        <th>目視檢驗缺失描述 <br> Cosmetic Inspection Defect Description</th>
+                        <th>電測檢驗結果 <br> Electrical Inspection Result</th>
+                        <th>電測檢驗缺失原因 <br> Electrical Inspection Defect Reason</th>
+                        <th>電測檢驗缺失描述 <br> Electrical Inspection Defect Description</th>
+                        <th>包裝檢驗結果 <br> Packing Inspection Result</th>
+                        <th>包裝檢驗缺失原因 <br> Packing Inspection Defect Reason</th>
+                        <th>包裝檢驗缺失描述 <br> Packing Inspection Defect Description</th>
+                        <th>包裝方式 <br> Packing Way</th>
+                        <th>合格否 <br> Accept Or Not</th>
+                        <th>記錄量 <br> Recorded Quantity</th>
+                        <th>序號 <br> Serial Number</th>
+                        <th>日期 <br> Date Code</th>
+                        <th>電測檢驗量測值 <br> Electrical Inspection Value</th>
+                        <th>超連結 <br> Hyper Link</th>
+                        <th>備註 <br> Remark</th>
+                        <th>檢驗者 <br> Inspector</th>
+                        <th>主管 <br> Director</th>
+                        
+                    </tr>
+                </thead>
+
+                <!-- 利用jinja2中的if statement判斷這筆是不是第一筆檢驗紀錄 -->
+                <tbody>
+                    {% for row in rows %}
+                    {% if loop.first %}
+                    <tr class="first">
+                        {% for i in row %}
+
+                            {% if loop.index0 == 11 %}
+                                <td><input type="text" placeholder="工程版本 item rev" value="{{i}}"></td>
+                            {% elif i == "減量" %}
+                                <td style="background-color: #6EFF6E;">{{i}}</td>
+                            {% elif i == "加嚴" %}
+                                <td style="background-color: #FFFF6E;">{{i}}</td>
+                            {% else %}
+                                <td>{{i}}</td>
+                            {% endif %}
+
+                        {% endfor %}
+
+
+                        <td>
+                            <select name="cosmetic_inspection_result">
+                                <option value="">請選擇目視檢驗結果 cosmetic inspection result</option>
+                                <option value="ok" selected>OK</option>
+                                <option value="ng">NG</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select name="cosmetic_inspection_defect_reason">
+                                <option value="none" selected>無 None</option>
+                                <option value="">缺失原因1 reason1</option>
+                                <option value="">缺失原因2 reason2</option>
+                                <option value="">缺失原因3 reason3</option>
+                                <option value="">其他原因  other</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input id="cosmetic_inspection_defect_description" type="text" name="cosmetic_inspection_defect_description" placeholder="缺失描述 defect description" value="無">
+                        </td>
+
+
+                        <td>
+                            <select name="electrical_inspection_result">
+                                <option value="">請選擇電測檢驗結果 electrical inspection result</option>
+                                <option value="ok" selected>OK</option>
+                                <option value="ng">NG</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select name="electrical_inspection_defect_reason">
+                                <option value="none" selected>無 None</option>
+                                <option value="">缺失原因1 reason1</option>
+                                <option value="">缺失原因2 reason2</option>
+                                <option value="">缺失原因3 reason3</option>
+                                <option value="">其他原因  other</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input id="electrical_inspection_defect_description" type="text" name="electrical_inspection_defect_description" placeholder="缺失描述 defect description" value="無">
+                        </td>
+
+
+                        <td>
+                            <select name="packing_inspection_result">
+                                <option value="">請選擇包裝檢驗結果 packing inspection result</option>
+                                <option value="ok" selected>OK</option>
+                                <option value="ng">NG</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select name="packing_inspection_defect_reason">
+                                <option value="none" selected>無 None</option>
+                                <option value="">缺失原因1 reason1</option>
+                                <option value="">缺失原因2 reason2</option>
+                                <option value="">缺失原因3 reason3</option>
+                                <option value="">其他原因  other</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input id="packing_inspection_defect_description" type="text" name="packing_inspection_defect_description" placeholder="缺失描述 defect description" value="無">
+                        </td>
+                        <td>
+                            <select name="packag_way">
+                                <option value="">請選擇包裝方式 packing way</option>
+                                <option value="none" selected>無</option>
+                                <option value="tube">Tube</option>
+                                <option value="reel">Reel</option>
+                                <option value="tray">Tray</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </td>
+
+                        <td>
+                            <select name="is_accepted">
+                                <option value="">請選擇是否合格 accepted or not</option>
+                                <option value="accept" selected>ACC</option>
+                                <option value="reject">REJ</option>
+                            </select>
+                        </td>
+
+                        <td>
+                            <input type="text" name="recorded_quantity" placeholder="請輸入紀錄量 recorded quantity" size="30">
+                        </td>
+                        <td>
+                            <input type="text" name="order_number" placeholder="請輸入序號 serial number" size="30">
+                        </td>
+                        
+                        <td>
+                            <input type="text" name="date_code" placeholder="請輸入 Date Code">
+                        </td>
+                        
+                        <td>
+                            <input id="electrical_inspection_value" type="text" name="electrical_inspection_value" placeholder="量測值 (請以'/'分隔)" size="">
+                        </td>
+                        
+
+                        <td>
+                            <input type="text" name="hyper_link" placeholder="超連結">
+                        </td>
+                        <td>
+                            <input type="text" name="remark" placeholder="備註">
+                        </td>
+                        
+                        <td>
+                            <select name="inspector">
+                                <option value="">請選擇檢驗者 inspector</option>
+                                <option value="Cathy">Cathy</option>
+                                <option value="Wendy">Wendy</option>
+                                <option value="Owen">Owen</option>
+                                <option value="Neil">Neil</option>
+                            </select>
+                        </td>
+
+                        <td>
+                            Raymond
+                        </td>
+
+                    </tr>
+                    {% else %}
+                    <tr>
+                        {% for i in row %}
+
+                            {% if loop.index0 == 11 %}
+                                <td><input type="text" placeholder="工程版本 item rev" value="{{i}}"></td>
+                            {% elif loop.index0 >= 12 %}
+                                <td class="data-update-by-ajax"></td>
+                            {% elif i == "減量" %}
+                                <td style="background-color: #6EFF6E;">{{i}}</td>
+                            {% elif i == "加嚴" %}
+                                <td style="background-color: #FFFF6E;">{{i}}</td>
+                            {% else %}
+                                <td>{{i}}</td>
+                            {% endif %}
+
+                        {% endfor %}
+
+
+                        <td>
+                            <select name="cosmetic_inspection_result">
+                                <option value="">請選擇目視檢驗結果 cosmetic inspection result</option>
+                                <option value="ok" selected>OK</option>
+                                <option value="ng">NG</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select name="cosmetic_inspection_defect_reason">
+                                <option value="none" selected>無 None</option>
+                                <option value="">缺失原因1 reason1</option>
+                                <option value="">缺失原因2 reason2</option>
+                                <option value="">缺失原因3 reason3</option>
+                                <option value="">其他原因  other</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input id="cosmetic_inspection_defect_description" type="text" name="cosmetic_inspection_defect_description" placeholder="缺失描述 defect description" value="無">
+                        </td>
+
+
+                        <td>
+                            <select name="electrical_inspection_result">
+                                <option value="">請選擇電測檢驗結果 electrical inspection result</option>
+                                <option value="ok" selected>OK</option>
+                                <option value="ng">NG</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select name="electrical_inspection_defect_reason">
+                                <option value="none" selected>無 None</option>
+                                <option value="">缺失原因1 reason1</option>
+                                <option value="">缺失原因2 reason2</option>
+                                <option value="">缺失原因3 reason3</option>
+                                <option value="">其他原因  other</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input id="electrical_inspection_defect_description" type="text" name="electrical_inspection_defect_description" placeholder="缺失描述 defect description" value="無">
+                        </td>
+
+
+                        <td>
+                            <select name="packing_inspection_result">
+                                <option value="">請選擇包裝檢驗結果 packing inspection result</option>
+                                <option value="ok" selected>OK</option>
+                                <option value="ng">NG</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select name="packing_inspection_defect_reason">
+                                <option value="none" selected>無 None</option>
+                                <option value="">缺失原因1 reason1</option>
+                                <option value="">缺失原因2 reason2</option>
+                                <option value="">缺失原因3 reason3</option>
+                                <option value="">其他原因  other</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input id="packing_inspection_defect_description" type="text" name="packing_inspection_defect_description" placeholder="缺失描述 defect description" value="無">
+                        </td>
+                        <td>
+                            <select name="packag_way">
+                                <option value="">請選擇包裝方式 packing way</option>
+                                <option value="none" selected>無</option>
+                                <option value="tube">Tube</option>
+                                <option value="reel">Reel</option>
+                                <option value="tray">Tray</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </td>
+
+                        <td>
+                            <select name="is_accepted">
+                                <option value="">請選擇是否合格 accepted or not</option>
+                                <option value="accept" selected>ACC</option>
+                                <option value="reject">REJ</option>
+                            </select>
+                        </td>
+
+                        <td>
+                            <input type="text" name="recorded_quantity" placeholder="請輸入紀錄量 recorded quantity" size="30">
+                        </td>
+                        <td>
+                            <input type="text" name="order_number" placeholder="請輸入序號 serial number" size="30">
+                        </td>
+                        
+                        <td>
+                            <input type="text" name="date_code" placeholder="請輸入 Date Code">
+                        </td>
+                        
+                        <td>
+                            <input id="electrical_inspection_value" type="text" name="electrical_inspection_value" placeholder="量測值 (請以'/'分隔)" size="">
+                        </td>
+                        
+
+                        <td>
+                            <input type="text" name="hyper_link" placeholder="超連結">
+                        </td>
+                        <td>
+                            <input type="text" name="remark" placeholder="備註">
+                        </td>
+                        
+                        <td>
+                            <select name="inspector">
+                                <option value="">請選擇檢驗者 inspector</option>
+                                <option value="Cathy">Cathy</option>
+                                <option value="Wendy">Wendy</option>
+                                <option value="Owen">Owen</option>
+                                <option value="Neil">Neil</option>
+                            </select>
+                        </td>
+
+                        <td>
+                            Raymond
+                        </td>
+
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+            <br>
+            <!-- <input type="submit" value="確定 Submit"> -->
+        </form>
+        <div class="btn-div">
+            <button class="btn ajax-request">送出</button>
+        </div>
+    </div>
+</body>
+</html>

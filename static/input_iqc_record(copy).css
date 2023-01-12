@@ -1,0 +1,39 @@
+* {
+    /* font-family: monospace; */
+    font-family: Microsoft JhengHei;
+}
+
+table, th, td {
+    border: 1px solid black;
+}
+
+th {
+    padding: 10px;
+}
+
+/* 把第一個row的框限加粗 */
+tr.first td {
+    border: 3px solid black;
+}
+
+td {
+    padding: 3px;
+}
+
+table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+#cosmetic_inspection_defect_description, #electrical_inspection_defect_description, #packing_inspection_defect_description {
+    width: 200px;
+}
+
+.btn-div {
+    text-align: right;
+}
+
+/* #electrical_inspection_value {
+    width: 350px;
+} */

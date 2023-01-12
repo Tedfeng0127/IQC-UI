@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>修改廠商抽樣狀態</title>
+</head>
+
+
+<body>
+    <div class="form_container">
+        <form method="post" action="/revise_complete">
+            <p>
+                <label><b>供應商代碼 Supplier Number：</b>
+                    <input type="text" name="supplier_number" value="{{ data[0] }}" readonly>
+                </label>
+            </p>
+
+            <p>
+                <b>供應商名稱 Supplier Name：</b>
+                {{ data[1] }}
+                <input type="text" name="supplier_name" value="{{ data[1] }}" hidden>
+            </p>
+
+            <p>
+                <label><b>供應商當前抽樣狀態 Current Sampling State：</b>
+                    <input type="text" name="original_sampling_state" value="{{ data[2] }}" readonly>
+                </label>
+            </p>
+
+            <p>
+                <label><b>*修改此供應商抽樣狀態為 Switch the Sampling State to ：</b>
+                    <select name="new_sampling_state" required>
+                        <option value="">請選擇抽樣狀態 Please select the sampling state</option>
+                        <option value="1">正常檢驗 Normal Level </option>
+                    </select>
+                </label>
+            </p>
+
+            <p>
+                <label><b>*檢驗者 Inspector：</b>
+                    <select name="inspector" id="inspector" required>
+                        <option value="">選擇檢驗者 Select the inspector</option>
+                        <option value="Cathy">Cathy</option>
+                        <option value="Wendy">Wendy</option>
+                        <option value="Owen">Owen</option>
+                        <option value="Neil">Neil</option>
+                        <option value="Jimmy">Jimmy</option>
+                        <option value="Patrick">Patrick</option>
+                        <option value="Kenny">Kenny</option>
+                    </select>
+                </label>
+                <input type="submit" value="提交修改 Submit">
+            </p>
+        </form>
+    </div>
+</body>
+</html>

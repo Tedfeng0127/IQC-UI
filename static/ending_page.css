@@ -1,0 +1,23 @@
+* {
+    /* font-family: monospace; */
+    font-family: Microsoft JhengHei;
+    background-color: #FAFAFA;
+}
+
+.container {
+    text-align: center;
+    width: 300px;
+    height: 200px;
+
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    margin: -50px 0 0 -125px;
+}
+
+button {
+    padding: 3px;
+    border-radius: 3px;
+    font-size: 12px;
+    border: 1px solid;
+}

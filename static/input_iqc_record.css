@@ -1,0 +1,61 @@
+* {
+    /* font-family: monospace; */
+    font-family: Microsoft JhengHei;
+}
+
+table, th, td {
+    border: 1px solid black;
+    /* border-radius: 5px; */
+}
+
+th {
+    padding: 10px;
+}
+
+td {
+    padding: 3px;
+}
+
+table.table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    margin-bottom: 20px;
+}
+
+.btn-ajax {
+    margin-bottom: 10px;
+}
+
+.btn-redirect {
+    margin-bottom: 10px;
+}
+
+label {
+    display: inline-block;
+    clear: both;
+    margin: 15px;
+}
+
+select.inspection_result {
+    width: 80px;
+}
+
+textarea.defect_description, .remark{
+    height: 21px;
+}
+
+.inspection_document_label {
+    color: red;
+    background-color: rgb(212, 212, 212);
+    border-radius: 3px;
+    padding: 5px;
+}
+
+.category_label {
+    background-color: rgb(212, 212, 212);
+    border-radius: 3px;
+    padding: 5px;
+    margin: 0px;
+    margin-top: 20px;
+}

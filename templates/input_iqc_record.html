@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='input_iqc_record.css') }}"/>
+    <title>物料檢驗紀錄輸入</title>
+</head>
+
+
+<body>
+    <div class="container">
+        <p>
+            請輸入檢驗紀錄<br>
+            Please enter the inspection record
+        </p>
+        
+        <div>
+            <div class="div-btn">
+                <!-- 觸發ajax request -->
+                <button class="btn-ajax" id="btn-ajax">顯示下一筆檢驗紀錄 Show the next inspection record</button>
+                <form action="show_ending_page" method="post">
+                    <!-- 跳轉頁面 -->
+                    <input type="submit" value="輸入完畢 Finish" class="btn-redirect">
+                </form>
+                總共輸入 <b id="data_counts">{{return_data[0]}}</b> 筆檢驗紀錄資料，已完成其中 <b id="click_counts">{{return_data[1]}}</b> 筆資料。
+                <br>
+                <b>{{return_data[0]}}</b> inspection records were entered, <b>{{return_data[1]}}</b> have been completed.
+            </div>
+        </div>
+        
+        <br>
+
+        <table class="table">
+            <tr>
+                <th>檢驗日期 <br> Inspection Date</th>
+                <th>廠商名稱 <br> Supplier Name</th>
+                <th>廠商代號 <br> Supplier No.</th>
+                <th>檢驗批號 <br> Inspection Lot No.</th>
+                <th>檢驗類別 <br> Inspection Type</th>
+                <th>工單號 <br> Work Order No.</th>
+                <th>採購單號 <br> PO No.</th>
+                <th>料號 <br> Part No.</th>
+                <th>品名 <br> Item Description</th>
+                <th>批量 <br> Lot Qty.</th>
+                <th>檢驗規範 <br> Inspection Document</th>
+                <th>抽樣計畫 <br> AQL</th>
+            </tr>
+        </table>
+    </div>
+</body>
+
+<script>
+    var clickCounts = Number(document.getElementById("click_counts").innerText);
+    var dataCounts = Number(document.getElementById("data_counts").innerText);
+    var ajaxButton = document.getElementById("btn-ajax");
+
+    // 如果輸入的檢驗紀錄筆數小於或等於已經完成的筆數，代表這次輸入的所有檢驗紀錄都檢驗完成
+    // 把"顯示下一筆"的按鈕設成disabled
+    if (dataCounts <= clickCounts) {
+        ajaxButton.setAttribute("disabled", "true")
+    }
+
+    $(document).ready(function () {
+        $(".btn-ajax").click(function () {
+            $.ajax({
+                url:"",
+                type:"get",
+                contentType:"application/json",
+                success:function (response) {
+                    var inspectionForm = document.getElementById("inspection_form");
+
+                    var date = response.date;
+                    var supplierName = response.supplier_name;
+                    var supplierNumber = response.supplier_number;
+                    var inspectionLot = response.inspection_lot;
+                    var inspectionType = response.inspection_type;
+                    var order = response.order;
+                    var purchasing = response.purchasing;
+                    var partNumber = response.part_number;
+                    var itemDescription = response.item_description;
+                    var quantity = response.quantity;
+                    var inspectionDocument = response.inspection_document;
+                    var aql = response.aql;
+                    
+                    var isProduct = response.is_product;
+                    // 沒有供應商的情況，供應商代號字體顯示紅色
+                    if (response.no_supplier === true) {
+                        var supplierNumberFontColor = " style='color: red;'"
+                    } else {
+                        var supplierNumberFontColor = ""
+                    };
+
+                    // 沒有料號的情況，料號字體顯示紅色
+                    if (response.no_item === true) {
+                        var partNumberFontColor = " style='color: red;'"
+                        var inspectionDocumentFontColorAndBackgroundColor =
+                        " style='color: red; background-color: rgb(212, 212, 212);'"
+                        var aqlFontColorAndBackgroundColor = 
+                        " style='color: red; background-color: rgb(212, 212, 212);'"
+                    } else {
+                        var partNumberFontColor = ""
+                        var inspectionDocumentFontColorAndBackgroundColor = ""
+                        var aqlFontColorAndBackgroundColor = ""
+                    };
+
+                    var returnHTML1 = `
+                    <tr>
+                        <td>${date}</td>
+                        <td>${supplierName}</td>
+                        <td${supplierNumberFontColor}>${supplierNumber}</td>
+                        <td>${inspectionLot}</td>
+                        <td>${inspectionType}</td>
+                        <td>${order}</td>
+                        <td>${purchasing}</td>
+                        <td${partNumberFontColor}>${partNumber}</td>
+                        <td>${itemDescription}</td>
+                        <td>${quantity}</td>
+                        <td${inspectionDocumentFontColorAndBackgroundColor}>${inspectionDocument}</td>
+                        <td${aqlFontColorAndBackgroundColor}>${aql}</td>
+                    </tr>
+                    `;
+                    // 在第一個表格中插入資料
+                    $(".table").append(returnHTML1);
+
+                    // 如果料號不存在，後端查不到檢驗規範，傳給前端的檢驗規範會是空的，
+                    // 所以要先assign一個value給inspectionDocument
+                    if (inspectionDocument === "") {
+                        inspectionDocument = "none";
+                    }
+
+                    // 如果供應商代碼不存在，後端查不到廠商的抽樣狀態，所以傳給前端的抽樣狀態是空的，
+                    // 或是這筆紀錄屬於成品的話，抽樣狀態也會是空的，
+                    // 以上兩種情況都把抽樣狀態設成正常檢驗
+                    if (response.sampling_state === "" || isProduct === true) {
+                        var samplingState = "正常";
+                    } else {
+                        var samplingState = response.sampling_state;
+                    }
+
+                    var category = response.category;
+                    var inspectionQuantity = response.inspection_quantity;
+                    var majorAccept = response.major_accept;
+                    var majorReject = response.major_reject;
+                    var minorAccept = response.minor_accept;
+                    var minorReject = response.minor_reject;
+                    var itemRev = response.item_rev;
+                    if (samplingState === "減量") {
+                        var tableDataBackgroundColor = " style='background-color: #6EFF6E;'"
+                    } else if (samplingState === "加嚴") {
+                        var tableDataBackgroundColor = " style='background-color: #FFFF6E;'"
+                    } else if (samplingState === "免驗") {
+                        var tableDataBackgroundColor = " style='background-color: #6EFFFF;'"
+                    } else {
+                        var tableDataBackgroundColor = ""
+                    }
+
+                    // 如果沒有order(工單號)，設成none
+                    if (order === "") {
+                        order = "none"
+                    }
+
+                    // 如果沒有inspection lot(檢驗批)，設成none
+                    if (inspectionLot === "") {
+                        inspectionLot = "none"
+                    }
+
+                    // 如果沒有purchasing(採購單號)，設成none
+                    if (purchasing === "") {
+                        purchasing = "none"
+                    }
+
+                    // 如果是成品，不會有主要缺失(收)、主要缺失(退)、次要缺失(收)、次要缺失(退)
+                    if (isProduct === true) {
+                        majorAccept = "none";
+                        majorReject = "none";
+                        minorAccept = "none";
+                        minorReject = "none";
+                    }
+
+                    // 如果料號不存在，後端沒有category可以找到，先設為none
+                    if (category === "") {
+                        category = "none"
+                    }
+
+                    var returnHTML2 = `
+                    <form id="inspection_form" action="/process_data" method="post">
+                    <table>
+                        <tr>
+                        <th>進料種類 <br> Category</th>
+                        <th>抽樣狀態 <br> Sampling Status</th>
+                        <th>抽驗量 <br> Sampling Qty.</th>
+                        <th>主要缺失 (收) <br> Major Def. (Acc.)</th>
+                        <th>主要缺失 (退) <br> Major Def. (Rej.)</th>
+                        <th>次要缺失 (收) <br> Minor Def. (Acc.)</th>
+                        <th>次要缺失 (退) <br> Minor Def. (Rej.)</th>
+                        </tr>
+                        <tr>
+                        <td>${category}</td>
+                        <td${tableDataBackgroundColor}>${samplingState}</td>
+                        <td>${inspectionQuantity}</td>
+                        <td>${majorAccept}</td>
+                        <td>${majorReject}</td>
+                        <td>${minorAccept}</td>
+                        <td>${minorReject}</td>
+                        </tr>
+                    </table>
+                    <label class="category_label">Category：
+                        <select name="category" class="category">
+                            <option value="">選擇Category(若需要更改) Select the category if needed</option>
+                            <option>Product</option>
+                            <option>STI SKU</option>
+                            <option>Material</option>
+                        </select>
+                    </label>
+
+                    <div style="margin-top: 10px;">
+                        <p>
+                        <label>*目視檢驗結果：
+                            <select name="visual_inspection_result" id="visual_inspect_result" class="inspection_result" required>
+                                <option value="OK" selected>OK</option>
+                                <option value="NG">NG</option>
+                                <option value="N/A">N/A</option>
+                            </select>
+                            <br>
+                            Visual Insp. Result
+                        </label>
+                        <label>*電測檢驗結果：
+                            <select name="electrical_function_inspection_result" id="electrical_function_inspection_result" class="inspection_result" required>
+                                <option value="OK" selected>OK</option>
+                                <option value="NG">NG</option>
+                                <option value="N/A">N/A</option>
+                            </select>
+                            <br>
+                            Electrical Insp. Result
+                        </label>
+                        <label>*包裝檢驗結果：
+                            <select name="package_inspection_result" id="package_inspection_result" class="inspection_result" required>
+                                <option value="OK" selected>OK</option>
+                                <option value="NG">NG</option>
+                                <option value="N/A">N/A</option>
+                            </select>
+                            <br>
+                            Packing Insp. Result
+                        </label>
+                        </p>
+
+                        <p>
+                        <label>製造日期碼：
+                            <input type="text" name="date_code" placeholder="請輸入 Date Code">
+                            <br>
+                            Mfg. Date Code
+                        </label>
+                        <label>電測檢驗(量測值)：
+                            <input id="electrical_function_inspection_value" type="text" name="electrical_function_inspection_value"
+                            placeholder="輸入量測值(以'/'分隔) Enter the inspection value(separate by '/')" size="57">
+                            <br>
+                            Electrical Insp. (Measured Value)
+                        </label>
+                        <label>包裝類別(電子元件)：
+                            <select name="package_way" class="package_way">
+                                <option value="none" selected>無 None</option>
+                                <option value="tube">Tube</option>
+                                <option value="reel">Reel</option>
+                                <option value="tray">Tray</option>
+                                <option value="other">Other</option>
+                            </select>
+                            <br>
+                            Packing Type (Electronic Component)
+                        </label>
+                        </p>
+
+                        <p id="visual_inspection_defect" style="display: none;">
+                        <label id="visual_inspection_defect_classification">目視檢驗缺失類別：
+                            <select name="visual_inspection_defect_classification" multiple size="5">
+                                <option value="none" selected>無 None</option>
+                                <option value="v1">v1. 型號錯誤 Incorrect model</option>
+                                <option value="v2">v2. 接腳氧化(焊接面氧化) Pings oxidization</option>
+                                <option value="v3">v3. 接腳不平整 Pings coplanarity issue</option>
+                                <option value="v4">v4. 尺寸 Dimentional issue</option>
+                                <option value="v5">v5. 字樣(重疊、不清晰) Text issue</option>
+                                <option value="v6">v6. 顏色錯誤 Incorrect color</option>
+                                <option value="v7">v7. 圖形 Graph issue</option>
+                                <option value="v8">v8. 版本 Incorrect version</option>
+                                <option value="v9">v9. 多/漏頁 Page issue</option>
+                                <option value="v10">v10. 配/組/缺件不齊全(漏組) Accessories issue</option>
+                                <option value="v11">v11. 材質不符 Material issue</option>
+                                <option value="v12">v12. 裁切不良 Cut issue</option>
+                                <option value="v13">v13. 無/漏v-cut V-cut missing</option>
+                                <option value="v14">v14. 翹板(板彎) Board warpage</option>
+                                <option value="v15">v15. 汙損/髒污 Contamination issue</option>
+                                <option value="v16">v16. 貫孔漏電鍍 Missing plating on through-hole</option>
+                                <option value="v17">v17. 貫孔塞孔/漏鑽 Blockage on through-hole</option>
+                                <option value="v18">v18. 防焊漏底材 Incomplete solder-masking</option>
+                                <option value="v19">v19. 防焊氣泡 Bubble on solder-masking</option>
+                                <option value="v20">v20. 安規標示 Certificate identification issue</option>
+                                <option value="v21">v21. 端子壓著 Bending terminals</option>
+                                <option value="v22">v22. 螺絲扭力 Screw torque issue</option>
+                                <option value="v23">v23. 烤漆流漆 Runs on paint</option>
+                                <option value="v24">v24. 烤漆氣泡 Blistering on paint</option>
+                                <option value="v25">v25. 烤漆顆粒 Dirts on paint</option>
+                                <option value="v26">v26. 烤漆剝落 Peeling on paint</option>
+                                <option value="v27">v27. 烤漆龜裂 Cracks on paint</option>
+                                <option value="v28">v28. 烤漆漏底材 Thinness on paint</option>
+                                <option value="v29">v29. 烤漆太厚 Over thickness on paint</option>
+                                <option value="v30">v30. 防烤不良(接地) Poor paint-masking</option>
+                                <option value="v31">v31. 撞傷 Damage</option>
+                                <option value="v32">v32. 刮傷 Scratch</option>
+                                <option value="v33">v33. 生鏽 Rusty</option>
+                                <option value="v34">v34. 毛邊 Burr</option>
+                                <option value="v35">v35. 凹痕 Dent</option>
+                                <option value="v36">v26. 變形 Deformation</option>
+                                <option value="v37">v37. 縮水(射出件) Shrinkage</option>
+                                <option value="v38">v38. 流痕 Flow mark</option>
+                                <option value="v39">v39. 異色 Off-color</option>
+                                <option value="v40">v40. 射出氣泡 Voids</option>
+                                <option value="v41">v41. 電銲 Welding issue</option>
+                                <option value="v42">v42. 拉釘 Rivet issue</option>
+                                <option value="v43">v43. 鉚錯規格(螺柱、絲、帽...) Incorrect rivet</option>
+                                <option value="v44">v44. 其他原因 Others</option>
+                            </select>
+                            <br>
+                            Visual Insp. Defect Type
+                        </label>
+                        <label id="visual_inspection_defect_description">目視檢驗缺失描述：
+                            <textarea placeholder="缺失描述 defect description" name="visual_inspection_defect_description"
+                            class="defect_description">無 None</textarea>
+                            <br>
+                            Visual Insp. Defect Description
+                        </label>
+                        </p>
+
+                        <p id="electrical_function_inspection_defect" style="display: none;">
+                        <label id="electrical_function_inspection_defect_classification">電測檢驗缺失類別：
+                            <select name="electrical_function_inspection_defect_classification" multiple size="5">
+                                <option value="none" selected>無 None</option>
+                                <option value="e1">e1. 電阻值 Resistance issue</option>
+                                <option value="e2">e2. 電容值 Capacitance issue</option>
+                                <option value="e3">e3. 漏電電流 Leakage current issue</option>
+                                <option value="e4">e4. 電感值 Inductance issue</option>
+                                <option value="e5">e5. 順向導通，逆向不通 Diode conductance issue</option>
+                                <option value="e6">e6. LCD顯示正常 LCD issue</option>
+                                <option value="e7">e7. 輸出電壓 Output voltage</option>
+                                <option value="e8">e8. IC燒錄檢查 IC read checksum</option>
+                                <option value="e9">e9. 震盪不良 Oscillator issue</option>
+                                <option value="e10">e10. 短斷路 Short/Open circuit issue</option>
+                                <option value="e11">e11. 導通 Couductivity issue</option>
+                                <option value="e12">e12. 端子鉚合拉力(只適用廠內線材自製品) Crimping issue</option>
+                                <option value="e13">e13. 其他原因 Others</option>
+                            </select>
+                            <br>
+                            Electrical Insp. Defect Type
+                        </label>
+                        <label id="electrical_function_inspection_defect_description">電測檢驗缺失描述：
+                            <textarea placeholder="缺失描述 defect description" name="electrical_function_inspection_defect_description"
+                            class="defect_description">無 None</textarea>
+                            <br>
+                            Electrical Insp. Defect Description
+                        </label>
+                        </p>
+
+                        <p id="package_inspection_defect" style="display: none;">
+                        <label id="package_inspection_defect_classification">包裝檢驗缺失類別：
+                            <select name="package_inspection_defect_classification" multiple size="5">
+                                <option value="none" selected>無 None</option>
+                                <option value="p1">p1. 標示(標籤內容) Label(content) issue</option>
+                                <option value="p2">p2. 包裝方式(防護性) Package protection issue</option>
+                                <option value="p3">p3. 內容物相符(混/錯料) Mixing/Incorrect stuff issue</option>
+                                <option value="p4">p4. Date Code(超過5年) Date Code(over 5 years) issue</option>
+                                <option value="p5">p5. 零件方向(一致性 for SMT) Orientation consistency(for SMT components) issue</option>
+                                <option value="p6">p6. 短少缺件 Missing/Shortage issue</option>
+                                <option value="p7">p7. 其他原因 Others</option>
+                            </select>
+                            <br>
+                            Packing Insp. Defect Type
+                        </label>
+                        <label id="package_inspection_defect_description">包裝檢驗缺失描述：
+                            <textarea placeholder="缺失描述 defect description" name="package_inspection_defect_description"
+                            class="defect_description">無 None</textarea>
+                            <br>
+                            Packing Insp. Defect Description
+                        </label>
+                        </p>
+
+                        <p>
+                        <label>*最終檢驗結果：
+                            <select name="inspection_result" class="inspection_result" required>
+                                <option value="accept" selected>ACCEPT</option>
+                                <option value="reject">REJECT</option>
+                            </select>
+                            <br>
+                            Final Inspection Result
+                        </label>
+                        <label>版本：
+                            <input type="text" name="item_rev" placeholder="工程版本 item rev" value=${itemRev}>
+                            <br>
+                            Rev.
+                        </label>
+                        <label class="inspection_document_label">檢驗規範：
+                            <select name="inspection_document" class="inspection_document">
+                                <option value="">選擇檢驗規範(若需要更改) Select the inspection document if needed</option>
+                                <option>QW-Q001</option><option>QW-Q002</option>
+                                <option>QW-Q003</option><option>QW-Q004</option>
+                                <option>QW-Q005</option><option>QW-Q006</option>
+                                <option>QW-Q007</option><option>QW-Q008</option>
+                                <option>QW-Q009</option><option>QW-Q010</option>
+                                <option>QW-Q011</option><option>QW-Q012</option>
+                                <option>QW-Q014</option><option>QW-Q016</option>
+                                <option>QW-Q017</option><option>QW-Q018</option>
+                                <option>QW-Q019</option><option>QW-Q020</option>
+                                <option>QW-Q021</option>
+                            </select>
+                            <br>
+                            Inspection Document
+                        </label>
+                        </p>
+
+                        <p>
+                        <label>記錄量(成品)：
+                            <input type="number" name="product_recorded_quantity" size="20" min="0">
+                            <br>
+                            Recorded Qty. (Product)
+                        </label>
+                        <label>序號(成品)：
+                            <input type="text" name="product_serial_number" placeholder="請輸入序號 serial number" size="20" value="無 None">
+                            <br>
+                            S/N (Product)
+                        </label>
+                        <label>超連結：
+                            <input type="text" name="hyper_link" placeholder="超連結" value="無 None">
+                            <br>
+                            Hyperlink
+                        </label>
+                        <label>備註：
+                            <textarea placeholder="備註" name="remark" class="remark">無 None</textarea>
+                            <br>
+                            Remark
+                        </label>
+                        </p>
+
+                        <label>*檢驗員：
+                            <select name="inspector" id="inspector" required>
+                                <option value="">選擇檢驗者 Select the inspector</option>
+                                <option value="Cathy">Cathy</option>
+                                <option value="Wendy">Wendy</option>
+                                <option value="Owen">Owen</option>
+                                <option value="Neil">Neil</option>
+                                <option value="Jimmy">Jimmy</option>
+                                <option value="Patrick">Patrick</option>
+                                <option value="Kenny">Kenny</option>
+                            </select>
+                            <br>
+                            Inspector
+                        </label>
+                        <label>*主管：
+                            <select name="manager" required>
+                                <option value="">請選擇主管</option>
+                                <option value="Raymond" selected>Raymond</option>
+                            </select>
+                            <br>
+                            Supervisor
+                        </label>
+                        
+                        <label class="checkbox">
+                        <input type="checkbox" name="skip" value="true" id="checkbox">跳過此筆檢驗
+                        <br>
+                        Skip This Record
+                        </label>
+                        
+                        <input type="hidden" name="original_inspection_document" value=${inspectionDocument}>
+                        <input type="hidden" name="is_product" value=${isProduct}>
+                        
+
+                        <input type="hidden" name="original_category" value=${category}>
+                        <input type="hidden" name="sampling_state" value=${samplingState}>
+                        <input type="hidden" name="inspection_date" value=${date}>
+                        <input type="hidden" name="supplier_number" value=${supplierNumber}>
+                        <input type="hidden" name="inspection_lot" value=${inspectionLot}>
+                        <input type="hidden" name="inspection_type" value=${inspectionType}>
+                        <input type="hidden" name="order" value=${order}>
+                        <input type="hidden" name="purchasing" value=${purchasing}>
+                        <input type="hidden" name="part_number" value=${partNumber}>
+                        <input type="hidden" name="item_description" value="${itemDescription}">
+                        <input type="hidden" name="quantity" value=${quantity}>
+                        <input type="hidden" name="aql" value=${aql}>
+                        <input type="hidden" name="inspection_quantity" value=${inspectionQuantity}>
+                        <input type="hidden" name="major_accept" value=${majorAccept}>
+                        <input type="hidden" name="major_reject" value=${majorReject}>
+                        <input type="hidden" name="minor_accept" value=${minorAccept}>
+                        <input type="hidden" name="minor_reject" value=${minorReject}>
+
+                            <input type="submit" value="送出 Submit" class="btn-submit" style="display: inline; margin-left: 50px">
+                    </form>
+                    </div>
+                    `;
+                    // 在第一個table下方插入一個form，form內還包含一個table
+                    $(".container").append(returnHTML2);
+
+                    
+                    // 如果跳過此筆檢驗被勾選，取消檢驗者輸入框的必填屬性
+                    var checkbox = document.querySelector("#checkbox");
+                    checkbox.addEventListener("click", function (e) {
+                        /*
+                        阻擋checkbox的事件冒泡，防止點擊checkbox的事件傳到label，
+                        避免點擊checkbox以後出現兩次點擊事件
+                        */
+                        e.stopPropagation();
+                        
+                        var skipThisRecordCheckboxIsChecked = document.querySelector("input[type=checkbox]:checked");
+                        var inspectorInputTag = document.getElementById("inspector")
+                        
+                        // 判斷checkbox是否有被勾選
+                        if (skipThisRecordCheckboxIsChecked === null) {
+                            // 沒有勾選  -->  保留檢驗者輸入框的必填屬性
+                            inspectorInputTag.setAttribute("required", "true")
+                        } else {
+                            // 有勾選  -->  把檢驗者輸入框的必填屬性取消
+                            inspectorInputTag.removeAttribute("required")
+                        }
+                    }, false);
+
+                    // 如果頁面上已經存在表單，把"顯示下一筆"的按鈕設成disabled
+                    var inspectionForm = document.getElementById("inspection_form");
+                    if (inspectionForm !== null) {
+                        ajaxButton.setAttribute("disabled", "true")
+                    }
+
+                    // 如果檢驗結果選擇NG  -->  顯示檢驗缺失類別選單和缺失描述輸入框
+                    // 如果檢驗結果選擇OK  -->  隱藏檢驗缺失類別選單和缺失描述輸入框
+                    var visual_result_list = document.getElementById("visual_inspect_result");
+                    var electrical_result_list = document.getElementById("electrical_function_inspection_result");
+                    var package_result_list = document.getElementById("package_inspection_result");
+                    visual_result_list.addEventListener("change", function (e) {
+                        var v_result_index = visual_result_list.selectedIndex;
+                        var v_result_value = visual_result_list[v_result_index].value;
+                        var v_defect = document.getElementById("visual_inspection_defect");
+                        if (v_result_value === "NG") {
+                            v_defect.style.display = "";
+                        } else {
+                            v_defect.style.display = "none";
+                        }
+                    }, false);
+                    electrical_result_list.addEventListener("change", function (e) {
+                        var e_reuslt_index = electrical_result_list.selectedIndex;
+                        var e_result_value = electrical_result_list[e_reuslt_index].value;
+                        var e_defect = document.getElementById("electrical_function_inspection_defect");
+                        if (e_result_value === "NG") {
+                            e_defect.style.display = "";
+                        } else {
+                            e_defect.style.display = "none";
+                        }
+                    }, false);
+                    package_result_list.addEventListener("change", function (e) {
+                        var p_result_index = package_result_list.selectedIndex;
+                        var p_result_value = package_result_list[p_result_index].value;
+                        var p_defect = document.getElementById("package_inspection_defect");
+                        if (p_result_value === "NG") {
+                            p_defect.style.display = "";
+                        } else {
+                            p_defect.style.display = "none";
+                        }
+                    }, false);
+                }
+            })
+        });
+    })
+</script>
+
+</html>

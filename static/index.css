@@ -1,0 +1,31 @@
+* {
+    /* font-family: monospace; */
+    font-family: Microsoft JhengHei;
+}
+
+textarea {
+    border-radius: 5px;
+}
+
+.button_box {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.button_box button {
+    margin-right: 10px;
+    width: 170px;
+    height: 70px;
+    border-radius: 5px;
+    border: 0;
+    background-color: rgb(224, 220, 220);
+}
+.button_box button:hover {
+    background-color: rgb(166, 167, 168);
+    border: solid;
+}
+
+.supplier_box {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}

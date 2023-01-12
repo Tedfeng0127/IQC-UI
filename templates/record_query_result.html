@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='info_confirm.css') }}"/>
+    <title>檢驗紀錄查詢結果</title>
+
+    <style>
+        button {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+
+<body>
+    <table class="table">
+        <tr>
+            <th>檢驗紀錄ID <br> Inspection Record ID</th>
+            <th>檢驗日期 <br> Inspection Date</th>
+            <th>抽樣狀態 <br> Sampling Status</th>
+            <th>廠商代號 <br> Supplier No.</th>
+            <th>廠商名稱 <br> Supplier Name</th>
+            <th>檢驗批號 <br> Inspection Lot</th>
+            <th>檢驗類別 <br> Inspection Type</th>
+            <th>工單號 <br> Work Order No.</th>
+            <th>採購單號 <br> PO No.</th>
+            <th>料號 <br> Part No.</th>
+            <th>品名 <br> Item Description</th>
+            <th>版本 <br> Rev.</th>
+            <th>批量 <br> Lot Qty.</th>
+            <th>抽驗量 <br> Sampling Qty.</th>
+            <th>主要缺失 (收) <br> Major Def. (Acc.)</th>
+            <th>主要缺失 (退) <br> Major Def. (Rej.)</th>
+            <th>次要缺失 (收) <br> Minor Def. (Acc.)</th>
+            <th>次要缺失 (退) <br> Minor Def. (Rej.)</th>
+            <th>紀錄量(成品) <br> Recorded Qty. (Product)</th>
+            <th>序號(成品) <br> S/N (Product)</th>
+            <th>最終檢驗結果 <br> Final Inspection Result</th>
+            <th>目視檢驗結果 <br> Visual Insp. Result</th>
+            <th>目視檢驗缺失類別 <br> Visual Insp. Defect Type</th>
+            <th>目視檢驗缺失描述 <br> Visual Insp. Defect Description</th>
+            <th>製造日期碼 <br> Mfg. Date Code</th>
+            <th>電測檢驗結果 <br> Electrical Insp. Result</th>
+            <th>電測檢驗缺失類別 <br> Electrical Insp. Defect Type</th>
+            <th>電測檢驗缺失描述 <br> Electrical Insp. Defect Description</th>
+            <th>電測檢驗(量測值) <br> Electrical Insp. (Measured Value)</th>
+            <th>包裝檢驗結果 <br> Packing Insp. Result</th>
+            <th>包裝檢驗缺失類別 <br> Packing Insp. Defect Type</th>
+            <th>包裝檢驗缺失描述 <br> Packing Insp. Defect Description</th>
+            <th>包裝類別(電子元件) <br> Packing Type (Electronic Component)</th>
+            <th>備註 <br> Remark</th>
+            <th>超連結 <br> Hyperlink</th>
+            <th>檢驗員 <br> Inspector</th>
+            <th>主管 <br> Supervisor</th>
+        </tr>
+
+        {% for d in data %}
+        <tr>
+            {% for i in d %}
+            <td>{{d[i]}}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+
+    <a href="{{ url_for('home') }}">
+        <button>結束 Finish</button>
+    </a>
+</body>
+</html>
